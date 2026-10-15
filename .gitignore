@@ -1,0 +1,6 @@
+emsdk/
+.emscripten*
+__pycache__/
+*.log
+src/
+doom1.wad

@@ -1,55 +1,97 @@
-# DOOM в браузъра — Netlify
+# DOOM — WebAssembly за браузър и Netlify
 
-Статична страница, която опитва автоматично да стартира DOS версията на DOOM чрез js-dos 6.22. Няма backend, API ключове или build стъпка.
+Оригиналният Linux DOOM 1.10 от **id Software**, адаптиран и компилиран с **Emscripten 3.1.69** до WebAssembly. Игровите данни са от предоставения shareware пакет **DOOM 1.9**. Първото ниво започва автоматично след зареждане на страницата.
 
-**Статус:** браузърен DOS launcher. Включен е предоставеният shareware пакет DOOM 1.9 в `assets/doom_dos.zip`, с DOOM.EXE и DOOM1.WAD. Емулаторът се изтегля от js-dos.com. Това не е компилация на самия DOOM до WebAssembly от [id-software/DOOM](https://github.com/id-software/DOOM). За такава компилация е нужен Emscripten, който липсва в средата. Реалното стартиране още не е проверено заради мрежовия проблем.
+Всички файлове за игра са включени в `dist/`: HTML, JavaScript, `doom.wasm` и `doom.data`. Не е необходим външен емулатор, CDN, backend или API ключ. Звукът изисква клик според правилата на браузъра.
 
-## Публикуване в Netlify чрез GitHub
+## Най-лесно: ZIP за Netlify Drop
 
-1. Влез в https://app.netlify.com/.
-2. Избери **Add new project → Import an existing project → GitHub**.
-3. Избери **webmihov-bot/onlinedoom**, branch **main**.
-4. Остави **Build command** празно; **Publish directory** е `.`.
-5. Натисни **Deploy** и отвори получения HTTPS адрес.
+1. Изтегли [netlify-doom-wasm.zip](https://github.com/webmihov-bot/onlinedoom/raw/refs/heads/main/netlify-doom-wasm.zip).
+2. Разархивирай го. `index.html` трябва да е непосредствено в получената папка.
+3. Отвори https://app.netlify.com/drop и плъзни тази папка.
+4. Отвори получения HTTPS адрес. Играта стартира при зареждане.
 
-Файлът `netlify.toml` вече задава publish directory. Не са нужни npm install или environment variables. Следващите commits в main ще се публикуват автоматично при активирана Git интеграция.
+В този ZIP са само файловете за публикуване. Изходният код е отделно в `source/doom-source.zip`.
 
-## Ръчно качване
+## Netlify чрез GitHub
 
-1. В GitHub избери **Code → Download ZIP**.
-2. Разархивирай файла.
-3. Отвори https://app.netlify.com/drop.
-4. Плъзни папката, в която непосредствено се намира `index.html`.
-5. Отвори получения адрес.
+1. В https://app.netlify.com/ избери **Add new project → Import an existing project → GitHub**.
+2. Избери **webmihov-bot/onlinedoom**, branch **main**.
+3. Остави **Build command** празно.
+4. **Publish directory**: `dist` — вече е зададено в `netlify.toml`.
+5. Натисни **Deploy**.
+
+Готовата компилация е включена в GitHub; Netlify няма нужда от инсталиране на Emscripten или повторна компилация. При изтегляне чрез **Code → Download ZIP**, за ръчно качване използвай папката `dist`.
 
 ## Управление
 
-- Стрелки: движение
-- Ctrl: стрелба
-- Space: врати и превключватели
-- Shift: бягане
-- Enter: избор; Esc: меню; 1–7: оръжия
+| Клавиш | Действие |
+| --- | --- |
+| Стрелки | Напред/назад и завъртане |
+| W / S | Напред / назад |
+| A / D | Странично движение |
+| Ctrl | Стрелба |
+| Space | Врати и превключватели |
+| Shift | Бягане |
+| 1–7 | Избор на оръжие |
+| Esc | Меню; освобождаване на мишката |
+| Tab | Карта |
+| + / − | Размер на игровия изглед |
 
-Страницата опитва да започне първото ниво автоматично. Клик в играта може да е необходим за клавиатурата и звука. Бутонът „Цял екран“ изисква действие от потребителя. Предназначено за компютър с клавиатура.
+Натисни **Играй / включи звука**, за да фокусираш играта. Бутонът за мишка заключва курсора по желание; ляв бутон стреля. За fullscreen използвай **Цял екран**. Предназначено за компютър с клавиатура.
 
-## Външни зависимости и ограничения
+## Ограничения
 
-Емулатор: https://js-dos.com/6.22/current/js-dos.js  
-DOS runtime: https://js-dos.com/6.22/current/wdosbox.js  
-Игрови пакет: `assets/doom_dos.zip` — включен в хранилището, 2 357 547 байта. Оригиналният архив е запазен непроменен, включително документацията.
+- Има PCM звукови ефекти през Web Audio. MUS музиката още не е реализирана.
+- Само single-player; мрежова игра не е включена.
+- Записите са във временната памет на страницата и се губят при презареждане.
+- Пакетът включва shareware първия епизод; не включва пълната платена игра.
 
-Нужен е интернет достъп до js-dos.com. Ако услугата или CORS политиката се променят, играта може да не стартира. Страницата показва грешка при неуспешно зареждане. Успешното публикуване на HTML в Netlify само по себе си не потвърждава работата на играта.
+## Локална проверка
 
-## Собствен DOS пакет
+Изпълни от основната папка:
 
-Отвори адреса с `?custom=1`, например `https://your-site.netlify.app/?custom=1`. Разгъни „Зареди собствен DOS ZIP“ и избери ZIP с `DOOM.EXE` и подходящия WAD в основната папка. Файлът се обработва в браузъра, без качване на сървър. Използвай само файлове, за които имаш права.
+```sh
+python3 -m http.server 8000 --directory dist
+```
 
-## Локално отваряне
+Отвори http://localhost:8000/. Не отваряй `index.html` чрез `file://`, защото WebAssembly и data пакетът се зареждат чрез HTTP.
 
-От папката на проекта изпълни `python3 -m http.server 8000` и отвори http://localhost:8000/. Интернетът остава необходим за емулатора. Стандартният игрови пакет се обслужва от същия сайт.
+## Инсталиране на Emscripten и повторна компилация
 
-## Проверки
+Официалният инструмент за инсталация е [emsdk](https://github.com/emscripten-core/emsdk). Самото [emscripten](https://github.com/emscripten-core/emscripten) хранилище не включва всички бинарни зависимости.
 
-Проверени са синтаксисът на app.js чрез `node --check app.js`, CRC целостта на предоставения DOS ZIP и наличието на DOOM.EXE и DOOM1.WAD. Не е извършен реален browser smoke test.
+```sh
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install 3.1.69
+./emsdk activate 3.1.69
+source ./emsdk_env.sh
+cd ..
+git clone https://github.com/webmihov-bot/onlinedoom.git
+cd onlinedoom
+python3 -m zipfile -e source/doom-source.zip .
+python3 -c "import zipfile; z=zipfile.ZipFile('assets/doom_dos.zip'); open('doom1.wad','wb').write(z.read('DOOM1.WAD'))"
+python3 build.py
+```
 
-DOOM © id Software. Емулаторът е проектът [js-dos](https://js-dos.com/). Страницата не е официален продукт на id Software.
+При Windows използвай `emsdk.bat` и `emsdk_env.bat` вместо shell скриптовете. За Debian/Ubuntu може да се използва и пакетът `emscripten`; проверената тук версия е Debian 3.1.69.
+
+`source/doom-source.zip` съдържа целия съответстващ C код, header файловете, оригиналния Makefile и браузърния платформен слой `src/i_web.c`. `build.py` е включен и в основната папка, и в архива.
+
+Основните адаптации са: canvas графика и клавиатура/мишка, Web Audio ефекти, single-player platform stubs, Asyncify yield в игровия цикъл, съвместим boolean тип и имена на функции, корекция на индексирането на входните събития. Оригиналният игрови engine остава на C.
+
+## Извършена проверка
+
+- Emscripten: C smoke test → WebAssembly → успешно изпълнение.
+- Успешна компилация на DOOM; валиден WebAssembly модул.
+- Chromium 154: автоматичен старт на E1M1, движение, завъртане, стрелба (намаляване на амунициите), Esc меню и активен Web Audio контекст след клик.
+- Без JavaScript runtime грешки при тази проверка. Всички игрови ресурси са локални.
+
+Компилацията запазва някои предупреждения от оригиналния C код. Проверката не обхваща всички нива и браузъри.
+
+## Лицензи и произход
+
+Оригинален engine: https://github.com/id-software/DOOM — **GPL-2.0**, виж `LICENSE`. Браузърните адаптации се предоставят под същия лиценз. Изходният код се разпространява в `source/doom-source.zip`.
+
+DOOM и игровите данни © id Software / ZeniMax. Лицензът на engine кода не променя правата върху игровите данни. Оригиналният предоставен DOS shareware архив е запазен непроменен в `assets/doom_dos.zip`; документацията му е включена и в `dist/SHAREWARE-README.TXT`. Това е неофициален порт.

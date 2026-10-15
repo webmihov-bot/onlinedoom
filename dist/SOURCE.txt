@@ -1,0 +1,5 @@
+DOOM engine and browser adaptations: GPL-2.0, see LICENSE.txt.
+Corresponding source and build instructions:
+https://github.com/webmihov-bot/onlinedoom
+https://github.com/webmihov-bot/onlinedoom/raw/refs/heads/main/source/doom-source.zip
+Game data has separate terms; see SHAREWARE-README.TXT.
